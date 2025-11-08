@@ -1,0 +1,91 @@
+body {
+    margin: 0;
+    overflow: hidden;
+}
+
+.contents {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    background-color: #1e3d69;
+}
+
+.container {
+    margin: 0 !important;
+    padding: 1vw !important;
+    max-width: 100vw !important;
+}
+
+.mt-5 {
+    margin-top: 0 !important;
+}
+.nav-link {
+    font-size: 15px;
+}
+.tab-content {
+    max-width: 100%;
+    height: 950px;
+}
+
+.tab-pane {
+    width: 100%;
+    height: 100%;
+}
+
+.leftmenu {
+    display: inline-block;
+    width: 20vw;
+    height: 100%;
+    background-color: #03153A;
+}
+
+.lm-info1 .dropdown-btn, .lm-info2 .dropdown-btn{
+    width: 18vw;
+    /* 패딩으로 크기 늘려주기 */
+    margin: 1vw;
+    padding: 0.5vw;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background-color: #1A305F;
+    color: #99AABC;
+    border: none;
+    cursor: pointer;
+    text-align: justify;
+    padding-left: 10px;
+}
+
+.lm-info1 .bi {
+    padding-left: 12vw;
+}
+
+.lm-info2 {
+    margin-top: 3vh;
+}
+.lm-info2 .bi {
+    padding-left: 13.5vw;
+}
+
+.lm-info2-table {
+    width: 18vw;
+    height: 20vh;
+    margin-top: -1vw;
+    margin-left: 1vw;
+    padding-left: 0.5vw;
+    padding-right: 0.5vw;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    background-color: #1e3d69;
+}
+
+.lm-info2-table table{
+    width: 100%;
+    height: 100%;
+}
+
+.form-check-input {
+    margin-top: -8px !important;
+    margin-bottom: 10px;
+    font-size: 2rem;
+}

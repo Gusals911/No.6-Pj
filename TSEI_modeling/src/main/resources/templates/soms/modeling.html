@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="../../../static/css/modeling/main.css">
+    <link rel="stylesheet" href="../../../static/css/modeling/customMarker.css">
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzxSPknsO4ZKNEf55FpCQl1Ukm0k7shQw&callback=initMap&libraries=places,visualization,marker&v=beta"></script>
+    <script src="/odortracking/static/js/markerclusterer_compiled.js"></script>
+    <script src="../../../static/dist/js/fontawesome-free-5.15.4-web/js/all.min.js"></script>
+    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+    <script>
+        var map;
+        var heatmap = null;
+        var rectangle = [];
+        var markerH = false;
+        var markers = [];
+        /*
+            setInterval 사용시
+            1. 장점
+            - 페이지 새로고침 없이 모델링 데이터만 로드 가능
+            - 페이지 깜빡임 없음
+            2. 단점
+            - 지속적으로 http 요청을 보내기때문에 웹에 부하 발생
+            - 날짜, 시간 셀렉트 박스 실시간 갱신 코드 필요
+            - 코드 구현을 위해서는 전역 변수를 사용해야 됨(웹 리소스)
+            - 현재 시간과 데이터 로드한 시간을 비교 후 같은 조건이면 데이터를 불러오지 않는 코드 필요(중복 데이터 방지)
+            - 특정 시간대의 자동 갱신이 처음이라면 해당 값을 저장(전역 변수 사용)
+            - 조회 눌렀을 때와 자동 갱신됐을 때의 조건값 필요
+            - 현재 조회된 값이 현재 시간 데이터인지 조회 조건을 적용한 데이터인지 사용자가 확인 할 수 있는 알림창 필요(실시간 / 조건)
+
+            location.reload 사용시
+            1. 장점
+            - 코드 한줄로 끝
+            - 웹 리소스 걱정 안해도 됨
+            2. 단점
+            - 페이지가 새로고침 됨
+            - 없어보임
+        */
+
+        $(function () {
+            init();// 페이지 초기화
+            initMap();
+            //let interval = setInterval(() => location.reload(), 900000);
+
+            $(".hiddenClass").on("keypress", function (e) {
+                if (e.charCode == 13) {
+                    modeling_fn();
+                }
+            });
+        });
+
+        // 최초 실행
+        const init = () => {
+            modelingDate_ajax();// 모델링 데이터가 존재하는 날짜 요청
+            modeling_ajax($("#selectDate").val(), $("#selectTime").val());// 모델링 데이터 생성
+        }
+
+        // 구글맵 생성
+        function initMap() {
+            var position = {
+                lat: 35.456759,
+                lng: 129.327684
+            };
+            var zoom = 15;
+            var mapLocation = new google.maps.LatLng(position); // 지도에서 가운데로 위치할 위도와 경도
+            var options = {
+                center: mapLocation,
+                zoom: zoom,
+                mapId: "4504f8b37365c3d0",
+                disableDefaultUI: true, //기본 UI 사용 여부
+                disableDoubleClickZoom: true, //더블클릭 중심으로 확대 사용 여부
+                draggable: true, //지도 드래그 이동 사용 여부
+                keyboardShortcuts: false, //키보드 단축키 사용 여부
+                maxZoom: 16, //최대 줌
+                minZoom: 10, //최소 줌
+                gestureHandling: 'greedy', //ctrl 없이 마우스 휠로 줌 가능
+                zoomControl: false, // 지도의 확대/축소 수준을 변경하는 데 사용되는 "+"와 "-" 버튼을 표시합니다. 기본적으로 이 컨트롤은 지도의 오른쪽 아래 모서리에 나타납니다.
+                mapTypeControl: true, // 드롭다운이나 가로 버튼 막대 스타일로 제공되며, 사용자가 지도 유형(ROADMAP, SATELLITE, HYBRID 또는 TERRAIN)을 선택할 수 있습니다. 이 컨트롤은 기본적으로 지도의 왼쪽 위 모서리에 나타납니다.
+                mapTypeControlOptions: {
+                    style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                    position: google.maps.ControlPosition.TOP_RIGHT
+                },
+                scaleControl: false, // 지도로 드래그해서 스트리트 뷰를 활성화할 수 있는 펙맨 아이콘이 있습니다. 기본적으로 이 컨트롤은 지도의 오른쪽 아래 근처에 나타납니다.
+                streetViewControl: false, // 경사진 이미지가 포함된 지도에 틸트와 회전 옵션 조합을 제공합니다. 기본적으로 이 컨트롤은 지도의 오른쪽 아래 근처에 나타납니다. 자세한 내용은 45° 이미지를 참조하세요.
+                rotateControl: true, // 지도 배율 요소를 표시합니다. 이 컨트롤은 기본적으로 비활성화되어 있습니다.
+                mapTypeId: google.maps.MapTypeId.SATELLITE
+                /* 기본 로드맵 보기를 표시합니다. */
+            };
+            map = new google.maps.Map(document.getElementById('newMap'), options);
+
+
+            google.maps.event.addListener(map, "click", function (event) {
+                placeMarker(event.latLng);
+                alert(event.latLng);
+            });
+
+
+            //gridCreate(); //격자좌표생성
+            //dashCreate2();
+
+
+        }
+
+        var marker = null;
+
+        function placeMarker(location) {
+            if (marker) {
+                marker.setMap(null);
+            }
+            marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+
+        }
+
+        //마커 생성
+        function markerCreate() {
+            //DB에 있는 장소 마커 표시
+            $.ajax({
+                url: 'modeling/places',
+                type: 'GET',
+                async: false,
+                success: function (result) {
+                    let places = result.list
+                    if (markers[0]) {
+                        for (let i = 0; i < markers.length; i++) {
+                            console.log("마커 삭제");
+                            markers[i].map = null;
+                        }
+                    }
+                    if (markerH == false) {
+                        for (let i = 0; i < places.length; i++) {
+                            var place = {lat: places[i]['lat'], lng: places[i]['lon']}
+                            markers[i] = new google.maps.marker.AdvancedMarkerView({
+                                map,
+                                content: buildContent(places[i]),
+                                position: place,
+                                title: places[i]['name'],
+                            });
+                            var content = '<div id="iw-container">' +
+                                '<table class="marker-table" border="1" >' +
+                                '<th>업종</th>' +
+                                '<th>악취 종류</th>' +
+                                '<th>방지시설명</th>' +
+                                '<th>배출구명</th>' +
+                                '<th>배출량(㎥/분)</th>' +
+                                '<tr>' +
+                                '<td>석유 정제품 제조업</td>' +
+                                '<td>생선비린내</td>' +
+                                '<td>스크러버</td>' +
+                                '<td>배출구-1</td>' +
+                                '<td>500</td>' +
+                                '</tr>' +
+                                '</table>' +
+                                '</div>';
+
+                            var infowindow = new google.maps.InfoWindow({
+                                content: content,
+                                pixelOffset: new google.maps.Size(0, 80),
+                                // Assign a maximum value for the width of the infowindow allows
+                                // greater control over the various content elements
+                                //maxWidth: 2500,
+                            });
+                            google.maps.event.addListener(markers[i], 'click', function () {
+                                infowindow.open(map, markers[i]);
+                            });
+                        }
+                    }
+                    var mc = new MarkerClusterer(map, markers);
+                }
+            });
+
+            // Event that closes the Info Window with a click on the map
+            map.addListener('click', function () {
+                console.log("닫혀라 얍");
+                infowindow.close();
+            });
+        }
+
+        // function highlight(markerView, place) {
+        // 	markerView.content.classList.add("highlight");
+        // 	markerView.element.style.zIndex = 1;
+        // }
+        //
+        // function unhighlight(markerView, place) {
+        // 	markerView.content.classList.remove("highlight");
+        // 	markerView.element.style.zIndex = "";
+        // }
+
+        //팝업 띄우기
+        // function openPop() {
+        // 	document.getElementById("popup_layer").style.display = "block";
+        //
+        // }
+        //
+        // //팝업 닫기
+        // function closePop() {
+        // 	document.getElementById("popup_layer").style.display = "none";
+        // }
+
+
+        function buildContent(place) {
+            const content = document.createElement("div");
+            content.classList.add("office-tag");
+            if (place.p_index > 1000) {
+                content.style.backgroundColor = 'blue';
+                content.innerHTML = `
+				<div class="icon">
+					<i aria-hidden="true" class="bi bi-star-fill"></i>
+					<span>&nbsp;${place.name}</span>
+				</div>
+				`;
+            } else {
+                check_index = place.p_index;
+                if (affected_list.find(isFf)) {
+                    content.style.backgroundColor = 'red';
+                }
+                content.innerHTML = `
+				<div class="icon">
+					<i aria-hidden="true" class="bi bi-geo-alt-fill"></i>
+					<span>&nbsp;${place.name}</span>
+				</div>
+				`;
+            }
+
+            return content;
+        }
+
+        // 격자 좌표 생성
+        function gridCreate() {
+
+
+            let shapes = [];
+            let bounds = new google.maps.LatLngBounds(
+                new google.maps.LatLng(35.3350, 129.550),
+                new google.maps.LatLng(35.3390, 129.555)
+            );
+            let json = bounds.toJSON();
+            let delta = {
+                long: Math.abs(json.west - json.east),
+                lat: Math.abs(json.north - json.south)
+            };
+            var lineSymbol = {
+                path: "M 0,-1 0,1",
+                strokeOpacity: 1,
+                scale: 2
+            };
+            shapes.push(
+                new google.maps.Rectangle({
+                    strokeColor: "#FF0000",
+                    strokeOpacity: 0.1,
+                    fillOpacity: 0,
+                    icons: [
+                        {
+                            icon: lineSymbol,
+                            offset: "0",
+                            repeat: "5px",
+                        },
+                    ],
+                    map,
+                    geodesic: true,
+                    bounds: bounds
+                })
+            );
+            let max = 0.4 / Math.abs(delta.long);
+            let max2 = 0.3 / Math.abs(delta.lat);
+            for (let i = 1; i < max; i++) {
+                json.east -= delta.long,
+                    json.west -= delta.long;
+
+                // 격자 좌표 생성
+                shapes.push(
+                    new google.maps.Rectangle({
+                        strokeColor: "#FF0000",
+                        strokeOpacity: 0.1,
+                        strokeWeight: 2,
+                        fillOpacity: 0,
+                        map,
+                        geodesic: true,
+                        bounds: json
+                    })
+                );
+                tempn = json.north;
+                temps = json.south;
+                for (let j = 1; j < max2; j++) {
+                    json.north += delta.lat,
+                        json.south += delta.lat;
+                    shapes.push(
+                        new google.maps.Rectangle({
+                            strokeColor: "#FF0000",
+                            strokeOpacity: 0.1,
+                            strokeWeight: 2,
+                            fillColor: "transparent",
+                            fillOpacity: 0,
+                            map,
+                            geodesic: true,
+                            bounds: json
+                        })
+                    )
+                }
+                json.north = tempn;
+                json.south = temps;
+            }
+        }
+
+        //격자좌표 생성2
+        function dashCreate2() {
+            let coordinates = [];
+            let lineValue = 500;
+            let initX = 35.63;
+            let initY = 129.14;
+            const flightPlanCoordinates = [
+                {lat: initX, lng: initY},
+                {lat: initX, lng: initY + 3}
+            ];
+
+            const dash = new google.maps.Polyline({
+                path: flightPlanCoordinates,
+                geodesic: true,
+                strokeColor: "#FF0000",
+                strokeOpacity: 1.0,
+                strokeWeight: 2,
+            });
+
+            dash.setMap(map);
+        }
+
+        // 히트맵 생성
+        function heatmapCreate(result) {
+
+            if (heatmap != null) {
+                heatmap.setMap(null);
+            }
+
+            heatmapData = [];
+            var len = result.length;
+            for (var i = 0; i < len; i++) {
+                lat = result[i].lat;
+                lng = result[i].lon;
+                conc = result[i].conc1;
+                var position = {
+                    location: new google.maps.LatLng(lat, lng),
+                    weight: conc
+                };
+                heatmapData.push(position);
+            }
+
+
+            // 수정해야하는 부분
+            heatmap = new google.maps.visualization.HeatmapLayer({
+                data: heatmapData,
+                map: map,
+                dissipating: true,  // 확대 축소 시 반경 달라짐
+                opacity: 0.8,// 투명도
+                //히든 세팅
+                radius: $("#radiusValue").val(), // 고정 값
+                maxIntensity: $("#maxValue").val(), // 고정 값
+            });
+
+        }
+
+        function circle(result) {
+            aa = [];
+            var len = result.length;
+            for (var i = 0; i < len; i++) {
+                lat = result[i].lat;
+                lng = result[i].lon;
+                conc = result[i].conc1;
+                var position = {
+                    location: new google.maps.LatLng(lat, lng),
+                    weight: conc
+                };
+                aa.push(position);
+                // 0.0025 0.003
+            }
+            //console.log(aa);
+            for (var i = 0; i < len; i++) {
+                const cityCircle = new google.maps.Circle({
+                    strokeColor: setColor(aa[i].weight),
+                    strokeOpacity: 1,
+                    strokeWeight: 1.5,
+                    map: map,
+                    center: aa[i].location,
+                    radius: 2,
+                });
+
+            }
+        }
+
+        // 격자 칸 악취 농도 값에 비례하여 색칠
+        function square(result) {
+
+            if (rectangle[0]) {
+                console.log("격자 삭제");
+                for (var i = 0; i < rectangle.length; i++) {
+                    rectangle[i].setMap(null);
+                }
+            }
+            var len = result.length;
+            for (var i = 0; i < len; i++) {
+                console.log("격자 색칠");
+                lat = result[i].lat;
+                lng = result[i].lon;
+                conc = result[i].conc1;
+                rectangle[i] = new google.maps.Rectangle({
+                    strokeColor: setColor(conc),
+                    strokeOpacity: 0,
+                    strokeWeight: 1,
+                    fillColor: setColor(conc),
+                    fillOpacity: 0.3,
+                    map: map,
+                    bounds: {
+                        north: lat + 0.00045,
+                        south: lat - 0.00045,
+                        east: lng + 0.00055,
+                        west: lng - 0.00055,
+                    },
+                });
+            }
+
+        }
+
+        function setColor(param) {
+            let color = 0;
+            if (param >= 0 && param < 3) {
+                color = "green";
+            } else if (param >= 4 && param < 15) {
+                color = "yellow";
+            } else if (param >= 16 && param <= 30) {
+                color = "orange";
+            } else {
+                color = "red";
+            }
+            return color;
+        }
+
+
+        // 모델링 날짜 정보 요청
+        const modelingDate_ajax = () => {
+            $.ajax({
+                url: 'modeling/date',
+                type: 'GET',
+                async: false,
+                success: function (result) {
+                    create_date(result);
+                    set_date();
+                },
+                error: function (e) {
+                    console.log(e);
+                    alert("데이터가 존재하지 않습니다.");
+                    location.reload();
+                }
+            });
+        }
+
+        // 날짜 설정
+        const set_date = () => {
+            let today = new Date();
+            let day = today.getDate();
+            let month = today.getMonth() + 1;
+
+            day = ("0" + day).slice(-2);
+            month = ("0" + month).slice(-2);
+
+            let selectDate = today.getFullYear() + "-" + month + "-" + day;
+            let selectHours = today.getHours();
+
+            if (selectHours < 10) {
+                selectHours = "0" + selectHours;
+            }
+            $("#selectDate").val(selectDate);
+            $("#selectTime").val(selectHours);
+        }
+
+        // 날짜 셀렉트 옵션 생성
+        const create_date = (data) => {
+            let option = "";
+            for (idx of data) {
+                option += "<option value=" + idx + ">" + idx + "</option>";
+            }
+            $("#selectDate").append(option);
+        }
+
+        // 모델링 데이터 요청
+        const modeling_fn = () => {
+            if (search_val = search_fn("selectDate") === false) {
+                return false;
+            }
+            if (search_val = search_fn("selectTime") === false) {
+                return false;
+            }
+            let selectDate = $("#selectDate option:selected").val();
+            let selectTime = $("#selectTime option:selected").val();
+            //initMap();
+            modeling_ajax(selectDate, selectTime);
+            markerCreate(); //마커 생성
+        }
+
+        // 모델링 데이터 요청
+        const modeling_ajax = (selectDate, selectTime) => {
+            $.ajax({
+                url: 'modeling/dataList?selectDate=' + selectDate + "&selectTime=" + selectTime,
+                type: 'GET',
+                async: false,
+                success: function (data) {
+                    let list = data.list;
+                    let weather = data.wlist;
+                    if (typeof weather[0] === "undefined") {
+                        alert("데이터가 존재하지 않습니다.");
+                        return false;
+                    }
+                    //heatmapCreate(list);
+                    //circle(list);
+                    affected_ajax(selectDate, selectTime);
+                    square(list);
+                    setWeatherData(weather[0]);
+                    setFAconc(list);
+                },
+                error: function (e) {
+                    console.log(e);
+                    alert("데이터가 존재하지 않습니다.");
+                    location.reload();
+                }
+            });
+        }
+
+    </script>
+    <style>
+        /*popup*/
+        .popup_layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+        }
+
+        /*팝업 박스*/
+        .popup_box {
+            position: relative;
+            top: 50%;
+            left: 50%;
+            overflow: auto;
+            padding: 30px;
+            height: 100px;
+            width: 500px;
+            transform: translate(-50%, -50%);
+            z-index: 11;
+            box-sizing: border-box;
+            background: #fff;
+            box-shadow: 2px 5px 10px 0px rgba(0, 0, 0, 0.35);
+            -webkit-box-shadow: 2px 5px 10px 0px rgba(0, 0, 0, 0.35);
+            -moz-box-shadow: 2px 5px 10px 0px rgba(0, 0, 0, 0.35);
+        }
+
+        .popup_box table {
+            font-size: 12px;
+            height: 25px;
+            text-align: center;
+            color: grey;
+            padding: 3px;
+        }
+
+        .popup_box table th {
+            padding-bottom: 5px;
+        }
+
+        .popup_box table td {
+            border: 0.5px solid grey;
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        /* 악취범례표 */
+        .legend {
+            position: absolute;
+            top: 11%;
+            right: 10px;
+            width: 200px;
+            height: 230px;
+            background: #1A305F;
+            padding: 20px;
+            line-height: 30px;
+            font-size: 12px;
+            border: 2px solid #03153A;
+        }
+
+        .legendone {
+            text-align: center;
+            padding-bottom: 10px;
+            color: white;
+            font-weight: bold;
+            border-bottom: 2px solid #37538E;
+        }
+
+        .legend span {
+            color: white;
+            font-weight: bold;
+        }
+
+        .legendtable {
+            padding: 5px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .legendtable td {
+            font-size: 13px;
+        }
+
+        .circle {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            line-height: 2;
+            text-align: center;
+            font-size: 10px;
+            color: white;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .circle p {
+            padding-bottom: 10px;
+        }
+
+        .wrapper {
+            text-align: center;
+            display: flex;
+            width: 100%;
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+<div class="content">
+    <header th:replace="soms/fragments/header"></header>
+    <nav th:replace="soms/fragments/nav"></nav>
+    <div class="mapcontents">
+        <leftmenu th:replace="soms/fragments/leftmenu"></leftmenu>
+        <div id="maps">
+            <div class="map" id="newMap">
+            </div>
+            <div class="legend">
+                <div class="legendone">
+                    <div class="wrapper">
+                        <div class="circle" style="background: blue;"><i class="bi bi-star-fill"></i></div>
+                        <p>관심지점</p>
+                    </div>
+                    <div class="wrapper">
+                        <div class="circle" style="background: green;"><i class="bi bi-geo-alt-fill"></i></div>
+                        <p>사업장</p>
+                    </div>
+                    <div class="wrapper">
+                        <div class="circle" style="background: red;"><i class="bi bi-geo-alt-fill"></i></div>
+                        <p>영향사업장</p>
+                    </div>
+                </div>
+                <div class="legendtable">
+                    <table>
+                        <th> 악취 세기</th>
+                        <tr>
+                            <td><i style="color:green; font-size:20px;" class="fa-solid fa-square"></i> 0 ~ 3 &nbsp;
+                            </td>
+                            <td><i style="color:orange; font-size:20px;" class="fa-solid fa-square"></i> 16 ~ 30 &nbsp;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><i style="color:yellow; font-size:20px;" class="fa-solid fa-square"></i> 4 ~ 15 &nbsp;
+                            </td>
+                            <td><i style="color:red; font-size:20px;" class="fa-solid fa-square"></i> 31 ~ &nbsp;</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<footer th:replace="soms/fragments/footer.html"></footer>
+</body>
+</html>

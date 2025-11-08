@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>악취 예보</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/common/css/main.css">
+    <link rel="stylesheet" href="/static/soms/css/customMarker.css">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzxSPknsO4ZKNEf55FpCQl1Ukm0k7shQw&callback=initMap&libraries=places,visualization,marker&v=beta"></script>
+    <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+    <script src="/static/soms/js/markerclusterer_compiled.js"></script>
+    <script src="/static/soms/dist/js/fontawesome-free-5.15.4-web/js/all.min.js"></script>
+    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+    <script type="text/javascript" src="/static/soms/js/modeling2.js"></script>
+    <script type="text/javascript" src="/static/soms/js/ajax.js"></script>
+    <style>
+        /*popup*/
+        .popup_layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+        }
+
+        /*팝업 박스*/
+        .popup_box {
+            position: relative;
+            top: 50%;
+            left: 50%;
+            overflow: auto;
+            padding: 30px;
+            height: 100px;
+            width: 500px;
+            transform: translate(-50%, -50%);
+            z-index: 11;
+            box-sizing: border-box;
+            background: #fff;
+            box-shadow: 2px 5px 10px 0px rgba(0, 0, 0, 0.35);
+            -webkit-box-shadow: 2px 5px 10px 0px rgba(0, 0, 0, 0.35);
+            -moz-box-shadow: 2px 5px 10px 0px rgba(0, 0, 0, 0.35);
+        }
+
+        .popup_box table {
+            font-size: 12px;
+            height: 25px;
+            text-align: center;
+            color: grey;
+            padding: 3px;
+        }
+
+        .popup_box table th {
+            padding-bottom: 5px;
+        }
+
+        .popup_box table td {
+            border: 0.5px solid grey;
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        /* 조회 날짜 기상정보 */
+        .weather_legend {
+            position: absolute;
+            top: 11%;
+            left: 320px;
+            width: 350px;
+            height: 50px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px 8px 8px 8px;
+        }
+
+        /* 악취범례표 */
+        .legend {
+            position: absolute;
+            top: 11%;
+            right: 10px;
+            width: 200px;
+            height: 345px;
+            background: #1A305F;
+            padding: 10px;
+            line-height: 30px;
+            font-size: 12px;
+            border: 2px solid #03153A;
+        }
+
+        .legendone {
+            text-align: center;
+            padding-bottom: 10px;
+            color: white;
+            font-weight: bold;
+            border-bottom: 2px solid #37538E;
+        }
+
+        .legend span {
+            color: white;
+            font-weight: bold;
+        }
+
+        .legendtable {
+            padding: 3px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .legendtable td {
+            font-size: 13px;
+        }
+
+        .circle {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            line-height: 2;
+            text-align: center;
+            font-size: 10px;
+            color: white;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .circle p {
+            padding-bottom: 10px;
+        }
+
+        .wrapper {
+            text-align: center;
+            display: flex;
+            width: 100%;
+            height: 30px;
+        }
+
+        /* 로딩 화면 컨테이너 스타일링 */
+        #loading-overlay {
+            position: fixed;
+            top: 50;
+            left: 50;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        /* 스피너 스타일링 *//*
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        */
+        /* 스피너 회전 애니메이션 */
+        @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    /* 슬라이더 주변 상자 */
+    .switch {
+    position: relative;
+    display: inline-block;
+    width: 80px;
+    height: 20px;
+    }
+
+    /* HTML 기본 체크박스 숨기기 */
+    .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    }
+
+    /* 슬라이더 효과 */
+    .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    }
+
+    .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 0px;
+    bottom: 0px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    }
+
+    input:checked + .slider {
+    background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+    -webkit-transform: translateX(60px);
+    -ms-transform: translateX(60px);
+    transform: translateX(60px);
+    }
+
+    /* 둥근스위치버튼 스타일 및 효과 */
+    .slider.round {
+    border-radius: 34px;
+    }
+
+    .slider.round:before {
+    border-radius: 50%;
+    }
+
+    /* 로딩 애니메이션 스타일 */
+        #loading-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+            z-index: 9999; /* 다른 요소 위에 표시 */
+        }
+
+        /* 로딩 애니메이션 컨테이너 스타일 */
+        #loading-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+        }
+
+        /* 로딩 스피너 스타일 */
+        .lds-spinner {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+        }
+
+        .lds-spinner div {
+            transform-origin: 40px 40px;
+            animation: lds-spinner 1.2s linear infinite;
+        }
+
+        .lds-spinner div:after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 3px;
+            left: 37px;
+            width: 6px;
+            height: 18px;
+            border-radius: 20%;
+            background: #fff;
+        }
+
+        @keyframes lds-spinner {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById("marker_hidden_slide").addEventListener("change", function() {
+            if (this.checked) {
+                if (markers.length > 0) {
+                    for (let i = 0; i < markers.length; i++) {
+                        markers[i].map = null;
+                    }
+                }
+            } else {
+                markerCreate();
+            }
+            });
+        });
+        
+    </script>
+</head>
+<body>
+<div class="background">
+    <div class="window">
+        <div class="popup">
+            <button id="close" onclick="modal_close();"><i class="bi bi-x-lg"></i></button>
+            <div class="output">
+                <div class="wrapper-l">
+                    <div class="circle-l" style="background: blue;"><i class="bi bi-star-fill"></i></div>
+                    <p id="faconcname_modal"> 관심지점_좌표 </p>
+                    <div class="concvalue">
+                        <p id="faconc_modal"> 악취 세기 0 </p>
+                    </div>
+                </div>
+                <table class="table table-sm" style="font-size: 1.2rem">
+                    <thead>
+                    <tr>
+                        <th scope="col">영향사업장</th>
+                        <th scope="col">배출구명</th>
+                        <th scope="col">악취 세기</th>
+                        <th scope="col">영향도(%)</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tbody_modal">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="content">
+    <header th:replace="soms/fragments/header"></header>
+    <nav th:replace="soms/fragments/nav"></nav>
+    <div class="mapcontents">
+        <!-- 로딩 애니메이션 컨테이너 -->
+        <div id="loading-animation">
+            <div id="loading-container">
+                <!-- 로딩 스피너 -->
+                <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                <p>Loading...</p>
+            </div>
+        </div>
+        <leftmenu th:replace="soms/fragments/leftmenu2"></leftmenu>
+        <div id="maps">
+            <div class="map" id="newMap">
+            </div>
+            <div class="weather_legend">
+                <div class="wrapper">
+                    <span id="selected_time"></span>
+                    <table class="table-to-weather_search">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                        class="bi bi-thermometer-half" viewBox="0 0 16 16">
+                                        <path d="M9.5 12.5a1.5 1.5 0 1 1-2-1.415V6.5a.5.5 0 0 1 1 0v4.585a1.5 1.5 0 0 1 1 1.415z" />
+                                        <path
+                                            d="M5.5 2.5a2.5 2.5 0 0 1 5 0v7.55a3.5 3.5 0 1 1-5 0V2.5zM8 1a1.5 1.5 0 0 0-1.5 1.5v7.987l-.167.15a2.5 2.5 0 1 0 3.333 0l-.166-.15V2.5A1.5 1.5 0 0 0 8 1z" />
+                                    </svg>
+                                    <span id="searchTemp"></span>
+                                </td>
+                                <td>
+                                    <span><i class="fas fa-tint"></i></span>
+                                    <span id="searchHumi"></span>
+                                </td>
+                                <td>
+                                    <img src="/static/soms/dist/images/arrow-wind-black.png" class="wind" id="searchWind">
+                                    <span id="searchDirection"></span>
+                                </td>
+                                <td>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-cloud-haze" viewBox="0 0 16 16">
+                                        <path
+                                            d="M8.5 3a4.002 4.002 0 0 0-3.8 2.745.5.5 0 1 1-.949-.313 5.002 5.002 0 0 1 9.654.595A3 3 0 0 1 13 12H4.5a.5.5 0 0 1 0-1H13a2 2 0 0 0 .001-4h-.026a.5.5 0 0 1-.5-.445A4 4 0 0 0 8.5 3zM0 7.5A.5.5 0 0 1 .5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm2 2a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm-2 4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z" />
+                                    </svg>
+                                    <span id="searchSpeed"></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="legend">
+                <div class="legendone">
+                    <div class="wrapper">
+                        <div class="circle" style="background: blue;"><i class="bi bi-star-fill"></i></div>
+                        <p>관심지점</p>
+                    </div>
+                    <div class="wrapper">
+                        <div class="circle" style="background: green;"><i class="bi bi-geo-alt-fill"></i></div>
+                        <p>사업장</p>
+                    </div>
+                    <div class="wrapper">
+                        <div class="circle" style="background: red;"><i class="bi bi-geo-alt-fill"></i></div>
+                        <p>영향사업장</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="marker_hidden_slide">
+                        <span class="slider round"></span>
+                        <p style="margin-top: -10px; margin-bottom: -40px;"> 마커 Hidden </p>
+                    </label>
+                </div>
+                <div class="legendtable">
+                    <table>
+                        <th> 악취 세기</th>
+                        <tr>
+                            <td><i style="color:#FBEFEF; font-size:20px;" class="fa-solid fa-square"></i> ~3(무취 수준)
+                                &nbsp;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><i style="color:#F5A9A9; font-size:20px;" class="fa-solid fa-square"></i> 3~10(감지 수준)
+                                &nbsp;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><i style="color:#FE2E2E; font-size:20px;" class="fa-solid fa-square"></i> 10~30(인지 수준)
+                                &nbsp;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><i style="color:#B40404; font-size:20px;" class="fa-solid fa-square"></i> 30~100(강한 냄새
+                                수준) &nbsp;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><i style="color:#610B0B; font-size:20px;" class="fa-solid fa-square"></i> 100~(강렬한 냄새
+                                수준) &nbsp;
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<!--<footer th:replace="modeling/fragments/footer.html"></footer>-->
+</body>
+</html>

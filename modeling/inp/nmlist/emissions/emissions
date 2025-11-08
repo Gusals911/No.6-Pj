@@ -1,0 +1,148 @@
+-------------------------------------------------------------------------------
+INPUT GROUPS: 13a, 13b, 13c, 13d -- Point source parameters
+--------------------------------
+     Number of point sources with
+     parameters provided below      (NPT1)  No default  !  NPT1 =   21  !
+
+     Units used for point source
+     emissions below                (IPTU)  Default: 1  !  IPTU =   1  !
+           1 =        g/s
+
+     Number of source-species
+     combinations with variable
+     emissions scaling factors
+     provided below in (13d)        (NSPT1) Default: 0  !  NSPT1 =  0  !
+
+     Number of point sources with
+     variable emission parameters
+     provided in external file      (NPT2)  No default  !  NPT2 =  0  !
+
+     (If NPT2 > 0, these point
+     source emissions are read from
+     the file: PTEMARB.DAT)
+!END!
+
+          POINT SOURCE: CONSTANT DATA
+          -----------------------------
+  Source       X         Y       Stack    Base     Stack    Exit  Exit    Bldg.  Emission
+   No.          Co       Co     Height Elevation Diameter  Vel.  Temp.   Dwash   Rates
+              (km)      (km)       (m)      (m)       (m)     (m/s) (deg. K)
+  ------   ---------- ---------- ------  ------   -------- ----- -------- ----- --------
+
+   1 ! SRCNAM = P0001 !
+   1 ! X = 412.329, 325.835,       5.,    0.00,      3.,   1700.00,   318.15,  0.0,    100000.0 !
+   1 ! END !
+   
+   2 ! SRCNAM = P0002 !
+   2 ! X = 414.304, 321.817,        5.,    0.00,      3.,   1000.00,   320.35,  0.0,      200000.0 !
+   2 ! END !
+   
+   3 ! SRCNAM = P0003 !
+   3 ! X = 413.885, 322.629,        5.,    0.00,      3.,   2400.84,   318.15,  0.0,      300000.0 !
+   3 ! END !
+   
+   4 ! SRCNAM = P0004 !
+   4 ! X = 414.237, 320.461,        5.,    0.00,      3.,   1700.00,   307.15,  0.0,      400000.0 !
+   4 ! END !
+   
+   5 ! SRCNAM = P0005 !
+   5 ! X = 416.262, 324.263,        5.,    0.00,      3.,   3200.60,   302.15,  0.0,      500000.0 !
+   5 ! END !
+   
+   6 ! SRCNAM = P0006 !
+   6 ! X = 413.222, 316.883,        5.,    0.00,      3.,   100.00,   302.65,  0.0,      600000.0 !
+   6 ! END !   
+   
+   7 ! SRCNAM = P0007 !
+   7 ! X = 412.372, 319.806,        5.,    0.00,      3.,   400.00,   364.15,  0.0,      700000.0 !
+   7 ! END !   
+   
+   8 ! SRCNAM = P0008 !
+   8 ! X = 414.115,  314.506,       5.,    0.00,      3.,   500.00,   298.15,  0.0,      800000.0 !
+   8 ! END !   
+   
+   9 ! SRCNAM = P0009 !
+   9 ! X = 412.050,  320.331,       5.,    0.00,      3.,   600.90,   318.15,  0.0,      900000.0 !
+   9 ! END !   
+   
+   10 ! SRCNAM = P0010 !
+   10 ! X = 411.495, 320.363,      5.,    0.00,      3.,   200.00,   451.15,  0.0,      100000.0 !
+   10 ! END !   
+   
+   11 ! SRCNAM = P0011 !
+   11 ! X = 411.963, 317.109,        5.,    0.00,      3.,   100.00,   311.65,  0.0,      200000.0 !
+   11 ! END !   
+   
+   12 ! SRCNAM = P0012 !
+   12 ! X = 411.866, 316.985,        5.,    0.00,      3.,   3300.40,   318.15,  0.0,      300000.0 !
+   12 ! END !   
+   
+   13 ! SRCNAM = P0013 !
+   13 ! X = 413.323, 317.608,        5.,    0.00,      3.,   1100.50,   458.15,  0.0,      400000.0 !
+   13 ! END !   
+   
+   14 ! SRCNAM = P0014 !
+   14 ! X = 412.642, 319.113,        5.,    0.00,      3.,   4000.00,   396.15,  0.0,      500000.0 !
+   14 ! END !   
+   
+   15 ! SRCNAM = P0015 !
+   15 ! X = 412.858, 319.218,        5.,    0.00,      3.,   100.00,   318.15,  0.0,    600000.0 !
+   15 ! END !   
+   
+   16 ! SRCNAM = P0016 !
+   16 ! X = 410.891, 323.657,        5.,    0.00,      3.,   100.30,   451.15,  0.0,    700000.0 !
+   16 ! END !   
+   
+   17 ! SRCNAM = P0017 !
+   17 ! X = 412.188, 324.121,        5.,    0.00,      3.,   1000.00,   458.15,  0.0,    800000.0 !
+   17 ! END !
+
+   18 ! SRCNAM = P0018 !
+   18 ! X = 411.112, 324.684,       5.,    0.00,      3.,   1000.00,   396.15,  0.0,    900000.0 !
+   18 ! END !
+
+   19 ! SRCNAM = P0019 !
+   19 ! X = 411.784, 323.923,        5.,    0.00,      3.,   1700.00,   318.15,  0.0,    100000.0 !
+   19 ! END !
+
+   20 ! SRCNAM = P0020 !
+   20 ! X = 414.370, 328.182,       5.,    0.00,      3.,   3400.00,   323.15,  0.0,    110000.0 !
+   20 ! END !
+
+   21 ! SRCNAM = P0021 !
+   21 ! X = 413.886, 322.601,        5.,    0.00,      3.,   4300.00,   306.15,  0.0,    200000.0 !
+   21 ! END !   
+   
+-------------------------------------------------------------------------------
+INPUT GROUPS: 14a, 14b, 14c, 14d -- Area source parameters
+--------------------------------
+     Number of polygon area sources with
+     parameters specified below (NAR1)       No default  !  NAR1 =   0  !
+
+     Units used for area source
+     emissions below            (IARU)       Default: 1  !  IARU =   1  !
+           1 =        g/m**2/s
+
+     Number of source-species
+     combinations with variable
+     emissions scaling factors
+     provided below in (14d)        (NSAR1) Default: 0  !  NSAR1 =  0  !
+
+     Number of buoyant polygon area sources
+     with variable location and emission
+     parameters (NAR2)                      No default  !  NAR2 =  0   !
+     (If NAR2 > 0, ALL parameter data for
+     these sources are read from the file: BAEMARB.DAT)
+!END!
+          AREA SOURCE: CONSTANT DATA
+          ----------------------------
+  Source           Effect.    Base      Initial    Emission
+   No.             Height   Elevation   Sigma z     Rates
+                   (m)       (m)        (m)      
+  -------          ------    ------     --------   ---------
+
+--------
+  Source                                                               a
+   No.       Ordered list of X followed by list of Y, grouped by source
+  ------     ------------------------------------------------------------
+

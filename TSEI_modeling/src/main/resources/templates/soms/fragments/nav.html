@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>nav-bar</title>
+    <link rel="stylesheet" href="/static/common/css/nav.css">
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var currentUrl = window.location.pathname;
+            var lastChar = currentUrl.charAt(currentUrl.length - 1);
+            var itemId = "item" + lastChar;
+            var navItem = document.getElementById(itemId);
+            navItem.classList.add("nav-item-on");
+        });
+    </script>
+</head>
+<body>
+<nav class="navDiv">
+    <ul class="nav-container">
+        <div class="navLeft">
+            <li class="nav-item-off" id="item1" style="width: 180px;"><a id="item1a"href="http://219.249.140.29:59083/arims/">실시간 악취관제</a></li>
+            <li class="nav-item-off" id="item2"><a id="item2a"href="http://219.249.140.29:12480/home">바람길 예측</a></li>
+            <li class="nav-item-off" id="item3"><a id="item3a"href="/soms/page3">악취예보</a></li>
+<!--             <li class="nav-item-off" id="item4"><a id="item4a"href="/arims/page4">악취추적차량</a></li> -->
+<!--             <li class="nav-item-off" id="item5"><a id="item5a"href="http://219.249.140.29:59083/arims/" style="">악취추적차량</a></li> -->
+            <li class="nav-item-off" id="item6"><a id="item6a"href="http://219.249.140.29:28083/soms/page5/input">솔루션</a></li>
+        </div>
+    </ul>
+</nav>
+</body>
+</html>

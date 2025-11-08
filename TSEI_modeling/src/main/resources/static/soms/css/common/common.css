@@ -1,0 +1,152 @@
+/* common */
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 1rem;
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: #0f0f0f;
+}
+
+ul {
+    list-style: none;
+}
+
+ul li {
+    cursor: pointer;
+}
+
+.container {
+    margin: 0 auto;
+    padding: 5px 20px;
+    background: white;
+    box-shadow: 0 0.15rem 1.75rem 0 rgb(58 59 69 / 15%);
+}
+
+.layout-row {
+    display: flex;
+    /* 	min-height: 100vh; */
+    /* 	min-height: 800px; */
+    background-color: #f4f5f6;
+}
+
+.layout-col {
+    flex-basis: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #F4F5F6;
+}
+
+.side-box {
+    flex-basis: 200px;
+    flex-shrink: 0;
+    margin: 10px 10px 0 0;
+    padding: 20px;
+    background-color: white;
+    box-sizing: border-box;
+    /* 	box-shadow: 10px 5px 5px #DEDEDE ,0px 0px 20px  #DEDEDE; */
+}
+
+.content-box {
+    width: 100%;
+    padding-top: 10px;
+    box-sizing: border-box;
+}
+
+.footer {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 15px 0;
+    text-align: center;
+    background: white;
+}
+
+.span_border {
+    padding: 3px 23px;
+    border-radius: 30px;
+}
+
+.span_border_red {
+    color: #FF7272;
+    background-color: #FFEFF0;
+    border: 1px solid #FFC8CC;
+}
+
+.span_border_blue {
+    color: #5E9BFB;
+    background-color: #F6FAFF;
+    border: 1px solid #97C0FF;
+}
+
+.span_border_orange {
+    color: #FEAD52;
+    background-color: #FFF9F1;
+    border: 1px solid #FFC06E;
+}
+
+.span_border_green {
+    color: #5BD567;
+    background-color: #F3FFF5;
+    border: 1px solid #A8EBAF;
+}
+
+/* data table */
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+    color: #6D6D6D;
+}
+
+.data-table {
+    margin-top: 10px;
+}
+
+.table thead,
+.table tbody {
+    display: block;
+    padding: 0 10px;
+}
+
+.table tbody {
+    height: 550px;
+    max-height: 550px;
+    background-color: #F4F5F8;
+    overflow-x: hidden;
+    overflow-y: overlay;
+}
+
+.table thead tr,
+.table tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    height: 44px;
+}
+
+.table tbody tr {
+    margin: 10px 0;
+    background-color: #fff;
+    box-shadow: 2px 2px 7px #e1e1e1;
+    border-radius: 5px;
+}
+
+.table thead tr th {
+    color: #7EA9F9;
+    font-weight: normal;
+}
+
+.table tbody tr td {
+    text-align: center;
+}
+

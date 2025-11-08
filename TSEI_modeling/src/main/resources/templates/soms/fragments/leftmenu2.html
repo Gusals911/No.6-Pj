@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/soms/css/leftmenu2.css">
+    <script src="https://kit.fontawesome.com/15c732f225.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/static/soms/js/leftmenu2.js"></script>
+</head>
+<body>
+<!-- modal 영역 -->
+<!--<div class="modal-bg" onClick="javascript:popClose();"></div>-->
+<!--<div class="modal-wrap">-->
+<!--  modal sample-->
+<!--  <button class="modal-close" onClick="javascript:popClose();">닫기</button>-->
+<!--</div>-->
+<!-- //modal 영역 -->
+<div class="menu-container">
+    <div class="weather">
+        <h1> Ulsan </h1>
+        <table class="table-to-weather">
+            <thead>
+            <tr>
+                <td colspan="3"><span id="nowDate">-</span>
+                    <h1 class="h1-clock"></h1></td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                         class="bi bi-thermometer-half" viewBox="0 0 16 16">
+                        <path d="M9.5 12.5a1.5 1.5 0 1 1-2-1.415V6.5a.5.5 0 0 1 1 0v4.585a1.5 1.5 0 0 1 1 1.415z"/>
+                        <path d="M5.5 2.5a2.5 2.5 0 0 1 5 0v7.55a3.5 3.5 0 1 1-5 0V2.5zM8 1a1.5 1.5 0 0 0-1.5 1.5v7.987l-.167.15a2.5 2.5 0 1 0 3.333 0l-.166-.15V2.5A1.5 1.5 0 0 0 8 1z"/>
+                    </svg>
+                    <span id="nowTemp"></span>
+                </td>
+                <td>
+                    <span><i class="fas fa-tint"></i></span>
+                    <span id="nowHumi"></span>
+                </td>
+                <td>
+                    <img src="/static/soms/dist/images/arrow-wind-white.png" class="wind" id="wind">
+                    <span id="nowDirection"></span>
+                </td>
+                <td>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         class="bi bi-cloud-haze" viewBox="0 0 16 16">
+                        <path d="M8.5 3a4.002 4.002 0 0 0-3.8 2.745.5.5 0 1 1-.949-.313 5.002 5.002 0 0 1 9.654.595A3 3 0 0 1 13 12H4.5a.5.5 0 0 1 0-1H13a2 2 0 0 0 .001-4h-.026a.5.5 0 0 1-.5-.445A4 4 0 0 0 8.5 3zM0 7.5A.5.5 0 0 1 .5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm2 2a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm-2 4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/>
+                    </svg>
+                    <span id="nowSpeed"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="dropdown">
+        <button class="dropdown-btn">발생 지점 악취 예측 <i class="bi bi-chevron-down"></i></button>
+    </div>
+
+    <div class="selection">
+        <p style="font-size: 1.4rem"> 날짜 / 시간 / 고도 / 사업장 조회 </p>
+        <div class="div-filter">
+            <table class="table-filter">
+                <tbody>
+                <tr>
+                    <td class="td-mw-date">
+                        <select style="font-size: 1.4rem" id="selectDate">
+                        </select>
+                        <select style="font-size: 1.4rem" id="selectTime">
+                            <th:block th:each="num : ${#numbers.sequence(0,23)}">
+                                <th:block th:with="hour = ${num <= 9 ? '0'+num : num}">
+                                    <option th:value="${hour}" th:text="${hour}+시"></option>
+                                </th:block>
+                            </th:block>
+                        </select>
+                        <select style="font-size: 1.4rem" id="selectAltitude">
+                            <option value="1">고도1</option>
+                            <option value="2">고도2</option>
+                            <option value="3">고도3</option>
+                            <option value="4">고도4</option>
+                            <option value="5">고도5</option>
+                            <option value="6">고도6</option>
+                            <option value="7">고도7</option>
+                            <option value="8">고도8</option>
+                            <option value="9">고도9</option>
+                            <option value="10">고도10</option>
+                        </select>
+                        <input type="text" id="radiusValue" class="hiddenClass" placeholder="radius" value="40"/>
+                        <input type="text" id="maxValue" class="hiddenClass" placeholder="max" value="200000"/>
+                        <button class="searchModeling" id="searchModeling" onClick="modeling_fn()"><i
+                                class="fa-solid fa-magnifying-glass"></i></button>
+                    </td>
+                    <td>
+                        <input style="font-size: 1.4rem" type="text" list="selectCompany" value="전체 사업장" onchange="change_company(this.value)"/>
+                        <datalist  id="selectCompany">
+                        </datalist>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="outputs">
+        <div class="output">
+            <div class="wrapper-l">
+                <div class="circle-l" style="background: blue;"><i class="bi bi-star-fill"></i></div>
+                <p id="faconc1name"> 관심지점1 </p>
+                <div class="concvalue">
+                    <p id="faconc1"> 악취 세기 20 </p>
+                </div>
+            </div>
+            <table class="table table-sm" style="font-size: 1.2rem">
+                <thead>
+                <tr>
+                    <th scope="col">영향사업장</th>
+                    <th scope="col">배출구명</th>
+                    <th scope="col">악취 세기</th>
+                    <th scope="col">영향도(%)</th>
+                </tr>
+                </thead>
+                <tbody id="tbody1">
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-11</td>
+                    <td>배출구-1</td>
+                    <td>11</td>
+                    <td>55</td>
+                </tr>
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-9</td>
+                    <td>배출구-3</td>
+                    <td>4</td>
+                    <td>20</td>
+                </tr>
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-7</td>
+                    <td>배출구-4</td>
+                    <td>2</td>
+                    <td>5</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="output">
+            <div class="wrapper-l">
+                <div class="circle-l" style="background: blue;"><i class="bi bi-star-fill"></i></div>
+                <p id="faconc2name"> 관심지점2 </p>
+                <div class="concvalue">
+                    <p id="faconc2"> 악취 세기 14 </p>
+                </div>
+            </div>
+            <table class="table table-sm" style="font-size: 1.2rem">
+                <thead>
+                <tr>
+                    <th scope="col">영향사업장</th>
+                    <th scope="col">배출구명</th>
+                    <th scope="col">악취 세기</th>
+                    <th scope="col">영향도(%)</th>
+                </tr>
+                </thead>
+                <tbody id="tbody2">
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-11</td>
+                    <td>배출구-1</td>
+                    <td>11</td>
+                    <td>55</td>
+                </tr>
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-9</td>
+                    <td>배출구-3</td>
+                    <td>4</td>
+                    <td>20</td>
+                </tr>
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-7</td>
+                    <td>배출구-4</td>
+                    <td>2</td>
+                    <td>5</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="output">
+            <div class="wrapper-l">
+                <div class="circle-l" style="background: blue;"><i class="bi bi-star-fill"></i></div>
+                <p id="faconc3name"> 관심지점3 </p>
+                <div class="concvalue">
+                    <p id="faconc3"> 악취 세기 13 </p>
+                </div>
+            </div>
+            <table class="table table-sm" style="font-size: 1.2rem">
+                <thead>
+                <tr>
+                    <th scope="col">영향사업장</th>
+                    <th scope="col">배출구명</th>
+                    <th scope="col">악취 세기</th>
+                    <th scope="col">영향도(%)</th>
+                </tr>
+                </thead>
+                <tbody id="tbody3">
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-11</td>
+                    <td>배출구-1</td>
+                    <td>11</td>
+                    <td>55</td>
+                </tr>
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-9</td>
+                    <td>배출구-3</td>
+                    <td>4</td>
+                    <td>20</td>
+                </tr>
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-7</td>
+                    <td>배출구-4</td>
+                    <td>2</td>
+                    <td>5</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

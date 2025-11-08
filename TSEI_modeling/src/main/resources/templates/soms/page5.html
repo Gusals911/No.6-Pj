@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>방지시설 예측</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/soms/css/page5.css">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://kit.fontawesome.com/15c732f225.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header th:replace="/soms/fragments/header"></header>
+    <nav th:replace="/soms/fragments/nav"></nav>
+    <div class="contents">
+        <div class="leftmenu">
+            <div class="lm-info1">
+                <button class="dropdown-btn">사업장 조회<i class="bi bi-chevron-down"></i></button>
+            </div>
+            <div class="col-md-6" style="max-width: 100%;">
+                <form class="form-inline">
+                    <div class="form-group mr-2">
+                        <input class="form-control" type="search" placeholder="검색어를 입력하세요" aria-label="검색" style="width: 16vw;">
+                    </div>
+                    <button class="btn btn-primary" type="submit">검색</button>
+                </form>
+            </div>
+            <div class="lm-info2">
+                <button class="dropdown-btn">배출구<i class="bi bi-chevron-down"></i></button>
+            </div>
+            <div class="lm-info2-table">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td><label class="form-check-label" for="flexCheckDefault1">
+                                배출구1
+                            </label></td>
+                            <td><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault1" checked></td>
+                        </tr>
+                        <tr>
+                            <td><label class="form-check-label" for="flexCheckDefault2">
+                                배출구2
+                            </label></td>
+                            <td><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault2"></td>
+                        </tr>
+                        <tr>
+                            <td><label class="form-check-label" for="flexCheckDefault3">
+                                배출구3
+                            </label></td>
+                            <td><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault3"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="container mt-5" style="margin-top: 0 !important;">
+            <!-- 탭 네비게이션 -->
+            <ul class="nav nav-tabs" style="width: 100%;">
+                <li class="nav-item" style="width: 200px;">
+                    <a class="nav-link active" data-toggle="tab" href="#tab1">입력인자</a>
+                </li>
+                <li class="nav-item" style="width: 200px;">
+                    <a class="nav-link" data-toggle="tab" href="#tab2">예측설비</a>
+                </li>
+                <li class="nav-item" style="width: 200px;">
+                    <a class="nav-link" data-toggle="tab" href="#tab3">선정설비 세부 규격</a>
+                </li>
+            </ul>
+
+            <!-- 탭 컨텐츠 -->
+            <div class="tab-content mt-3" style="margin-top: 0 !important;">
+                <div id="tab1" class="tab-pane active">
+                    <tab1 th:replace="/soms/page5/pg5-tab1"></tab1>
+                </div>
+                <div id="tab2" class="tab-pane">
+                    <tab2 th:replace="/soms/page5/pg5-tab2"></tab2>
+                </div>
+                <div id="tab3" class="tab-pane">
+                    <h3>세 번째 탭</h3>
+                    <p>이곳은 세 번째 탭의 내용입니다.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

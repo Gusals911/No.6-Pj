@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tsei.www.mapper.no1.somsMapper">
+    <!-- 모델링 데이터 -->
+    <select id="getModelingList" resultType="com.tsei.www.vo.modelingDataVO"> SELECT lat, lon, conc1
+        AS conc FROM modeling_data1 WHERE reg_date BETWEEN #{startTime} AND #{endTime} AND e_idx =
+        #{e_idx} ORDER BY reg_date DESC </select>
+
+    <!-- 사업체 데이터 -->
+    <select id="getPlaceList" resultType="com.tsei.www.vo.placeDataVO"> SELECT * FROM
+        place_data_temp </select>
+
+    <!-- 모델링 날짜 데이터 -->
+    <select id="getModelingDate" resultType="String"> SELECT reg_date FROM (SELECT
+        date_format(reg_date, '%Y-%m-%d') AS reg_date FROM modeling_data1 GROUP BY reg_date) AS temp
+        GROUP BY reg_date ORDER BY reg_date DESC </select>
+
+    <!-- 기상 데이터 -->
+    <select id="getWeatherList" resultType="com.tsei.www.vo.modelingWeatherVO"> SELECT * FROM
+        modeling_weather1 WHERE reg_date BETWEEN #{startTime} AND #{endTime} ORDER BY mw_idx DESC
+        LIMIT 1 </select>
+
+
+    <!-- 관심지점별 배출구 산출 -->
+    <select id="getAconcList" resultType="com.tsei.www.vo.modelingDataVO"> SELECT ${conc} AS conc
+        FROM modeling_data1 WHERE e_idx = ${e_index} AND lat BETWEEN ${latm} AND ${latp} AND lon
+        BETWEEN ${lonm} AND ${lonp} AND reg_date BETWEEN #{startTime} AND #{endTime} ORDER BY
+        ${conc} DESC LIMIT 4;</select>
+
+</mapper>

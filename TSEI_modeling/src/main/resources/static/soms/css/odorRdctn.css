@@ -1,0 +1,71 @@
+.injection-table-box {
+    width: 1610px;
+    height: 580px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    overflow: scroll;
+}
+
+.injection-table {
+    width: 6000px;
+    font-size: 14px;
+    overlfow-x: scroll;
+    border: 1px solid #CFDEFF;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.injection-table thead tr th {
+    width: ;
+    background: #F2F6FF;
+    padding: 10px 5px;
+    border: 1px solid #CFDEFF;
+}
+
+.injection-table thead tr:nth-child(2) th {
+    color: #444;
+}
+
+.injection-table thead tr:nth-child(3) th {
+    color: #666;
+}
+
+.injection-table tbody tr td {
+    color: #555;
+    font-size: 12px;
+    padding: 14px 10px;
+    border-bottom: 1px solid #CFDEFF;
+}
+
+.date-color {
+    color: #888;
+    font-size: 13px;
+}
+
+.span_title {
+    color: #426DE5;
+    padding: 3px 15px;
+    background: #E4ECFF;
+    border-radius: 30px;
+    border: 1px solid #CFDEFF;
+}
+
+
+/* 스크롤바 디자인 */
+
+.injection-table-box::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.injection-table-box::-webkit-scrollbar-thumb {
+    background-color: #EBEBEB;
+    border-radius: 2px;
+    background-clip: padding-box;
+    /* border: 2px solid transparent; */
+}
+
+.injection-table-box::-webkit-scrollbar-track {
+    background-color: #fafafa;
+    border-radius: 2px;
+}

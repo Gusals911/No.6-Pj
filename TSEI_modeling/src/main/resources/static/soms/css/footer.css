@@ -1,0 +1,14 @@
+.footer {
+    max-height: 3vh;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #EBEEF5;
+    color: #555555;
+    text-align: center;
+}
+
+.footer p {
+    margin: 5px;
+}

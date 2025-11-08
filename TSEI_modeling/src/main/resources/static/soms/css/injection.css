@@ -1,0 +1,7 @@
+@CHARSET "UTF-8";
+
+.table tbody tr td:nth-child(1) {
+    color: #888;
+    font-size: 14px;
+}
+

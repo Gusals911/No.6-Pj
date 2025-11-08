@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/odortracking/static/css/modeling/leftmenu2.css">
+    <script src="https://kit.fontawesome.com/15c732f225.js" crossorigin="anonymous"></script>
+    <script>
+        /* 1. 태성환경연구소 2. 야음동 행정복지센터 3. 온산읍 행정복지센터 */
+        function isFf1(element) {
+            if (element.p_index === 1001) {
+                return true;
+            }
+        }
+
+        function isFf2(element) {
+            if (element.p_index === 1002) {
+                return true;
+            }
+        }
+
+        function isFf3(element) {
+            if (element.p_index === 1003) {
+                return true;
+            }
+        }
+
+        check_index = 816;
+
+        function isFf(element) {
+            if (element.p_index === check_index) {
+                return true;
+            }
+        }
+
+        var alat, alon;
+
+        function isAf(element) {
+            if (element.lat === alat && element.lon === alon) {
+                return true;
+            }
+        }
+
+        function setFAconc(list) {
+            alat = 35.456551;
+            alon = 129.327667;
+            var fElement = list.find(isAf);
+            if (fElement == undefined) {
+                $('#faconc1').replaceWith("<p id='faconc1'>악취세기 0</p>");
+            } else {
+                num = fElement.conc1.toFixed(1);
+                $('#faconc1').replaceWith("<p id='faconc1'>악취세기 " + num + "</p>");
+            }
+
+            alat = 35.501366;
+            alon = 129.339981;
+            fElement = list.find(isAf);
+            if (fElement == undefined) {
+                $('#faconc2').replaceWith("<p id='faconc2'>악취세기 0</p>");
+            } else {
+                num = fElement.conc1.toFixed(1);
+                $('#faconc2').replaceWith("<p id='faconc2'>악취세기 " + num + "</p>");
+            }
+
+            alat = 35.453697;
+            alon = 129.335297;
+            fElement = list.find(isAf);
+            if (fElement == undefined) {
+                $('#faconc3').replaceWith("<p id='faconc3'>악취세기 0</p>");
+            } else {
+                num = fElement.conc1.toFixed(1);
+                $('#faconc3').replaceWith("<p id='faconc3'>악취세기 " + num + "</p>");
+            }
+        }
+
+        function createTable(element, n) {
+
+            if (element.length != 0) {
+                for (var i = 0; i < element.length; i++) {
+                    num = element[i].a_conc.toFixed(1);
+                    var tableTd = '<tr>';
+                    tableTd += '<td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a>' + element[i].name + '</td>';
+                    tableTd += '<td>' + "배출구 - 1" + '</td>';
+                    tableTd += '<td>' + num + '</td>';
+                    tableTd += '<td>' + "100" + '</td>';
+                    tableTd += '</tr>';
+
+                    $('#tbody' + n).append(tableTd);
+                }
+            } else {
+                for (var i = 0; i < 3; i++) {
+                    var tableTd = '<tr>';
+                    tableTd += '<td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a>' + "Null" + '</td>';
+                    tableTd += '<td>' + "배출구 - 1" + '</td>';
+                    tableTd += '<td>' + "Null" + '</td>';
+                    tableTd += '<td>' + "Calcul.." + '</td>';
+                    tableTd += '</tr>';
+
+                    $('#tbody' + n).append(tableTd);
+                }
+            }
+        }
+
+        let affected_list = [];
+        const affected_ajax = (selectDate, selectTime) => {
+            $.ajax({
+                url: 'modeling/aplace?selectDate=' + selectDate + "&selectTime=" + selectTime,
+                type: 'GET',
+                async: false,
+                success: function (data) {
+                    affected_list = data.list;
+                    $('#tbody1').replaceWith("<tbody id='tbody1'></tbody>");
+                    createTable(affected_list.filter(isFf1), 1);
+                    $('#tbody2').replaceWith("<tbody id='tbody2'></tbody>");
+                    createTable(affected_list.filter(isFf2), 2);
+                    $('#tbody3').replaceWith("<tbody id='tbody3'></tbody>");
+                    createTable(affected_list.filter(isFf3), 3);
+
+                },
+                error: function (e) {
+                    console.log(e);
+                    alert("Error: Loading Affected Places");
+                    //location.reload();
+                }
+            });
+        }
+
+        function setWeatherData(weather) {
+            var temp = Math.round(weather.temp * 10) / 10;
+            $('#nowTemp').text(temp + '℃');
+            $('#nowHumi').text(weather.humi + '％');
+            $('#nowSpeed').text(weather.wspd + '㎧');
+            $('#nowDirection').text(transfer_WindKO(weather.wdir));
+            $('#nowDate').text(weather.reg_date.substring(0, 13) + '시');
+            $('#arrows').attr('class', 'arrow ' + transfer_WindENG(weather.wdir));
+            $('#nowPressure').text(weather.air);
+            $('#wind').attr('class', 'wind ' + transfer_WindENG(weather.wdir));
+        }
+
+        /*라디안을 한글로*/
+        function transfer_WindKO(deg) {
+            var val = Math.floor((deg / 22.5) + .5)
+            arr = ["북", "북북동", "북동", "동북동", "동", "동남동", "남동", "남남동", "남", "남남서", "남서", "서남서", "서", "서북서", "북서", "북북서"];
+            return arr[(val) % 16];
+        }
+
+        /*라디안을 영어로*/
+        function transfer_WindENG(deg) {
+            var val = Math.floor((deg / 22.5) + .5)
+            arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+            return arr[(val) % 16];
+        }
+
+        // 날짜 / 시간 조회 스크립트
+        const search_fn = (select) => {
+            if ($("#" + select).val() === "0") {
+                alert($("#" + select + " option:selected").text() + "를(을) 선택해주세요.");
+                return false;
+            }
+        }
+
+        //드랍다운
+        $('.dropdown li').hover(
+            function () {
+                $('ul', this).stop().slideDown(200);
+            },
+            function () {
+                $('ul', this).stop().slideUp(200);
+            }
+        );
+
+        function popOpen() {
+
+            var modalPop = $('.modal-wrap');
+            var modalBg = $('.modal-bg');
+
+            $(modalPop).show();
+            $(modalBg).show();
+
+        }
+
+        function popClose() {
+            var modalPop = $('.modal-wrap');
+            var modalBg = $('.modal-bg');
+
+            $(modalPop).hide();
+            $(modalBg).hide();
+
+        }
+    </script>
+</head>
+<body>
+<!-- modal 영역 -->
+<!--<div class="modal-bg" onClick="javascript:popClose();"></div>-->
+<!--<div class="modal-wrap">-->
+<!--  modal sample-->
+<!--  <button class="modal-close" onClick="javascript:popClose();">닫기</button>-->
+<!--</div>-->
+<!-- //modal 영역 -->
+<div class="menu-container">
+    <div class="weather">
+        <h1> Ulsan (Backend)</h1>
+        <table class="table-to-weather">
+            <thead>
+            <tr>
+                <td colspan="3"><span id="nowDate">-</span></td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                         class="bi bi-thermometer-half" viewBox="0 0 16 16">
+                        <path d="M9.5 12.5a1.5 1.5 0 1 1-2-1.415V6.5a.5.5 0 0 1 1 0v4.585a1.5 1.5 0 0 1 1 1.415z"/>
+                        <path d="M5.5 2.5a2.5 2.5 0 0 1 5 0v7.55a3.5 3.5 0 1 1-5 0V2.5zM8 1a1.5 1.5 0 0 0-1.5 1.5v7.987l-.167.15a2.5 2.5 0 1 0 3.333 0l-.166-.15V2.5A1.5 1.5 0 0 0 8 1z"/>
+                    </svg>
+                    <span id="nowTemp"></span>
+                </td>
+                <td>
+                    <span><i class="fas fa-tint"></i></span>
+                    <span id="nowHumi"></span>
+                </td>
+                <td>
+                    <img src="../static/dist/images/arrow-wind.png" class="wind" id="wind">
+                    <span id="nowDirection"></span>
+                </td>
+                <td>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         class="bi bi-cloud-haze" viewBox="0 0 16 16">
+                        <path d="M8.5 3a4.002 4.002 0 0 0-3.8 2.745.5.5 0 1 1-.949-.313 5.002 5.002 0 0 1 9.654.595A3 3 0 0 1 13 12H4.5a.5.5 0 0 1 0-1H13a2 2 0 0 0 .001-4h-.026a.5.5 0 0 1-.5-.445A4 4 0 0 0 8.5 3zM0 7.5A.5.5 0 0 1 .5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm2 2a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm-2 4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/>
+                    </svg>
+                    <span id="nowSpeed"></span>
+                </td>
+                <td>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                         class="bi bi-speedometer2" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z"/>
+                        <path fill-rule="evenodd"
+                              d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z"/>
+                    </svg>
+                    <span id="nowPressure"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="dropdown">
+        <button class="dropdown-btn">발생 지점 악취 예측 <i class="bi bi-chevron-down"></i></button>
+        <div class="dropdown-submenu">
+            <a href="#none">Category One</a>
+            <a href="#none">Category One</a>
+            <a href="#none">Category One</a>
+        </div>
+    </div>
+
+    <div class="selection">
+        <p style="font-size: 1.4rem"> 날짜 / 시간 조회 </p>
+        <div class="div-filter">
+            <table class="table-filter">
+                <tbody>
+                <tr>
+                    <td class="td-mw-date">
+                        <select style="font-size: 1.4rem" id="selectDate">
+                        </select>
+                        <select style="font-size: 1.4rem" id="selectTime">
+                            <th:block th:each="num : ${#numbers.sequence(0,23)}">
+                                <th:block th:with="hour = ${num <= 9 ? '0'+num : num}">
+                                    <option th:value="${hour}" th:text="${hour}+시"></option>
+                                </th:block>
+                            </th:block>
+                        </select>
+                        <input type="text" id="radiusValue" class="hiddenClass" placeholder="radius" value="40"/>
+                        <input type="text" id="maxValue" class="hiddenClass" placeholder="max" value="200000"/>
+                        <button class="searchModeling" id="searchModeling" onClick="modeling_fn()"><i
+                                class="fa-solid fa-magnifying-glass"></i></button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="outputs">
+        <div class="output">
+            <div class="wrapper-l">
+                <div class="circle-l" style="background: blue;"><i class="bi bi-star-fill"></i></div>
+                <p> 태성환경연구소 </p>
+                <div class="concvalue">
+                    <p id="faconc1"> 악취 세기 20 </p>
+                </div>
+            </div>
+            <table class="table table-sm" style="font-size: 1.2rem">
+                <thead>
+                <tr>
+                    <th scope="col">영향사업장</th>
+                    <th scope="col">배출구명</th>
+                    <th scope="col">악취 세기</th>
+                    <th scope="col">영향도(%)</th>
+                </tr>
+                </thead>
+                <tbody id="tbody1">
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-11</td>
+                    <td>배출구-1</td>
+                    <td>11</td>
+                    <td>55</td>
+                </tr>
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-9</td>
+                    <td>배출구-3</td>
+                    <td>4</td>
+                    <td>20</td>
+                </tr>
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-7</td>
+                    <td>배출구-4</td>
+                    <td>2</td>
+                    <td>5</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="output">
+            <div class="wrapper-l">
+                <div class="circle-l" style="background: blue;"><i class="bi bi-star-fill"></i></div>
+                <p> 야음동 행정복지센터 </p>
+                <div class="concvalue">
+                    <p id="faconc2"> 악취 세기 14 </p>
+                </div>
+            </div>
+            <table class="table table-sm" style="font-size: 1.2rem">
+                <thead>
+                <tr>
+                    <th scope="col">영향사업장</th>
+                    <th scope="col">배출구명</th>
+                    <th scope="col">악취 세기</th>
+                    <th scope="col">영향도(%)</th>
+                </tr>
+                </thead>
+                <tbody id="tbody2">
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-11</td>
+                    <td>배출구-1</td>
+                    <td>11</td>
+                    <td>55</td>
+                </tr>
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-9</td>
+                    <td>배출구-3</td>
+                    <td>4</td>
+                    <td>20</td>
+                </tr>
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-7</td>
+                    <td>배출구-4</td>
+                    <td>2</td>
+                    <td>5</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="output">
+            <div class="wrapper-l">
+                <div class="circle-l" style="background: blue;"><i class="bi bi-star-fill"></i></div>
+                <p> 온산읍 행정복지센터 </p>
+                <div class="concvalue">
+                    <p id="faconc3"> 악취 세기 13 </p>
+                </div>
+            </div>
+            <table class="table table-sm" style="font-size: 1.2rem">
+                <thead>
+                <tr>
+                    <th scope="col">영향사업장</th>
+                    <th scope="col">배출구명</th>
+                    <th scope="col">악취 세기</th>
+                    <th scope="col">영향도(%)</th>
+                </tr>
+                </thead>
+                <tbody id="tbody3">
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-11</td>
+                    <td>배출구-1</td>
+                    <td>11</td>
+                    <td>55</td>
+                </tr>
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-9</td>
+                    <td>배출구-3</td>
+                    <td>4</td>
+                    <td>20</td>
+                </tr>
+                <tr>
+                    <td><a href="#"><i class="fa-solid fa-arrow-right-to-bracket"></i></a> 사업장-7</td>
+                    <td>배출구-4</td>
+                    <td>2</td>
+                    <td>5</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,105 @@
+# Java/Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.mvn/
+mvnw
+mvnw.cmd
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.classpath
+.project
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Logs
+*.log
+logs/
+app.log
+app_startup.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Application specific
+TSEI_modeling/app.log
+TSEI_modeling/app_startup.log
+TSEI_modeling/target/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
+
+# Modeling output data (large files - team should add these separately)
+modeling/out/*
+!modeling/out/.gitkeep
+modeling/run/*.DAT
+modeling/run/*.LST
+modeling/run/*.CON
+modeling/inp/restart/*.DAT
+modeling/inp/surf/pr/*
+modeling/inp/up/*.DAT
+
+# Large binary files (exceed GitHub 100MB limit)
+modeling/bin/*.exe
+modeling/bin/wgrib2
+modeling/util/skor.dem
+modeling.zip
+modeling_DB.zip
+
+# Configuration files with sensitive data (keep examples, ignore actual configs)
+modeling/util/*/config.json
+!modeling/util/*/config*.example.json
+!modeling/util/*/config.local.json.example
+
+# Node modules (if any)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Compressed files (usually too large)
+*.zip
+*.tar
+*.tar.gz
+*.rar
+!modeling_DB.zip
+!modeling.zip
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+

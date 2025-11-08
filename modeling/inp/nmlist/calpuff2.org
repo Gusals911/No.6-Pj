@@ -1,0 +1,290 @@
+---------------
+Subgroup (14d)
+---------------
+                                               a
+          AREA SOURCE: VARIABLE EMISSIONS DATA
+          --------------------------------------
+
+     Use this subgroup to describe temporal variations in the emission
+     rates given in 14b.  Factors entered multiply the rates in 14b.
+     Skip sources here that have constant emissions.  For more elaborate
+     variation in source parameters, use BAEMARB.DAT and NAR2 > 0.
+
+     IVARY determines the type of variation, and is source-specific:
+     (IVARY)                                Default: 0
+           0 =       Constant
+           1 =       Diurnal cycle (24 scaling factors: hours 1-24)
+           2 =       Monthly cycle (12 scaling factors: months 1-12)
+           3 =       Hour & Season (4 groups of 24 hourly scaling factors,
+                                    where first group is DEC-JAN-FEB)
+           4 =       Speed & Stab. (6 groups of 6 scaling factors, where
+                                    first group is Stability Class A,
+                                    and the speed classes have upper
+                                    bounds (m/s) defined in Group 12
+           5 =       Temperature   (12 scaling factors, where temperature
+                                    classes have upper bounds (C) of:
+                                    0, 5, 10, 15, 20, 25, 30, 35, 40,
+                                    45, 50, 50+)
+
+
+
+--------
+    a
+     Data for each species are treated as a separate input subgroup
+     and therefore must end with an input group terminator.
+
+
+-------------------------------------------------------------------------------
+
+INPUT GROUPS: 15a, 15b, 15c -- Line source parameters
+---------------------------
+
+---------------
+Subgroup (15a)
+---------------
+
+     Number of buoyant line sources
+     with variable location and emission
+     parameters (NLN2)                              No default  !  NLN2 =  0   !
+
+     (If NLN2 > 0, ALL parameter data for
+      these sources are read from the file: LNEMARB.DAT)
+
+     Number of buoyant line sources (NLINES)        No default   ! NLINES =  0  !
+
+     Units used for line source
+     emissions below                (ILNU)          Default: 1  !  ILNU =   1  !
+           1 =        g/s
+           2 =       kg/hr
+           3 =       lb/hr
+           4 =     tons/yr
+           5 =     Odour Unit * m**3/s  (vol. flux of odour compound)
+           6 =     Odour Unit * m**3/min
+           7 =     metric tons/yr
+           8 =     Bq/s  (Bq = becquerel = disintegrations/s)
+           9 =     GBq/yr
+
+     Number of source-species
+     combinations with variable
+     emissions scaling factors
+     provided below in (15c)        (NSLN1) Default: 0  !  NSLN1 =  0  !
+
+     Maximum number of segments used to model
+     each line (MXNSEG)                             Default: 7   ! MXNSEG =  7  !
+
+     The following variables are required only if NLINES > 0.  They are
+     used in the buoyant line source plume rise calculations.
+
+        Number of distances at which                Default: 6   ! NLRISE =  6  !
+        transitional rise is computed
+
+        Average building length (XL)                No default   ! XL = 500.0 !
+                                                    (in meters)
+
+        Average building height (HBL)               No default   ! HBL = 22.0 !
+                                                    (in meters)
+
+        Average building width (WBL)                No default   ! WBL = 18.0 !
+                                                    (in meters)
+
+        Average line source width (WML)             No default   ! WML = 15.0 !
+                                                    (in meters)
+
+        Average separation between buildings (DXL)  No default   ! DXL = 22.0 !
+                                                    (in meters)
+
+        Average buoyancy parameter (FPRIMEL)        No default   ! FPRIMEL = 300.0 !
+                                                    (in m**4/s**3)
+
+!END!
+
+---------------
+Subgroup (15b)
+---------------
+
+          BUOYANT LINE SOURCE: CONSTANT DATA
+          ----------------------------------
+                                                                                          a
+Source     Beg. X      Beg. Y      End. X    End. Y     Release    Base        Emission
+ No.     Coordinate  Coordinate  Coordinate Coordinate  Height    Elevation      Rates
+            (km)        (km)        (km)       (km)       (m)       (m)          
+------   ----------  ----------  ---------  ----------  -------   ---------    ---------
+--------
+
+    a
+     Data for each source are treated as a separate input subgroup
+     and therefore must end with an input group terminator.
+
+    b
+     An emission rate must be entered for every pollutant modeled.
+     Enter emission rate of zero for secondary pollutants that are
+     modeled, but not emitted.  Units are specified by ILNTU 
+     (e.g. 1 for g/s).
+
+---------------
+Subgroup (15c)
+---------------
+                                                       a
+          BUOYANT LINE SOURCE: VARIABLE EMISSIONS DATA
+          ----------------------------------------------
+
+     Use this subgroup to describe temporal variations in the emission
+     rates given in 15b.  Factors entered multiply the rates in 15b.
+     Skip sources here that have constant emissions.
+
+     IVARY determines the type of variation, and is source-specific:
+     (IVARY)                                Default: 0
+           0 =       Constant
+           1 =       Diurnal cycle (24 scaling factors: hours 1-24)
+           2 =       Monthly cycle (12 scaling factors: months 1-12)
+           3 =       Hour & Season (4 groups of 24 hourly scaling factors,
+                                    where first group is DEC-JAN-FEB)
+           4 =       Speed & Stab. (6 groups of 6 scaling factors, where
+                                    first group is Stability Class A,
+                                    and the speed classes have upper
+                                    bounds (m/s) defined in Group 12
+           5 =       Temperature   (12 scaling factors, where temperature
+                                    classes have upper bounds (C) of:
+                                    0, 5, 10, 15, 20, 25, 30, 35, 40,
+                                    45, 50, 50+)
+
+
+
+--------
+    a
+     Data for each species are treated as a separate input subgroup
+     and therefore must end with an input group terminator.
+
+
+-------------------------------------------------------------------------------
+
+
+INPUT GROUPS: 16a, 16b, 16c -- Volume source parameters
+---------------------------
+
+---------------
+Subgroup (16a)
+---------------
+
+     Number of volume sources with
+     parameters provided in 16b,c (NVL1)     No default  !  NVL1 =  0   !
+
+     Units used for volume source
+     emissions below in 16b       (IVLU)     Default: 1  !  IVLU =   1  !
+           1 =        g/s
+           2 =       kg/hr
+           3 =       lb/hr
+           4 =     tons/yr
+           5 =     Odour Unit * m**3/s  (vol. flux of odour compound)
+           6 =     Odour Unit * m**3/min
+           7 =     metric tons/yr
+           8 =     Bq/s  (Bq = becquerel = disintegrations/s)
+           9 =     GBq/yr
+
+     Number of source-species
+     combinations with variable
+     emissions scaling factors
+     provided below in (16c)      (NSVL1)    Default: 0  !  NSVL1 =  0  !
+
+     Number of volume sources with
+     variable location and emission
+     parameters                   (NVL2)     No default  !  NVL2 =   0   !
+
+     (If NVL2 > 0, ALL parameter data for
+      these sources are read from the VOLEMARB.DAT file(s) )
+
+!END!
+
+---------------
+Subgroup (16b)
+---------------
+                                        a
+           VOLUME SOURCE: CONSTANT DATA
+           ------------------------------
+                                                                               b
+         X           Y        Effect.    Base     Initial    Initial    Emission
+     Coordinate  Coordinate   Height   Elevation  Sigma y    Sigma z     Rates
+        (km)       (km)         (m)       (m)        (m)       (m)      
+     ----------  ----------   ------    ------    --------   --------   --------
+
+
+--------
+    a
+     Data for each source are treated as a separate input subgroup
+     and therefore must end with an input group terminator.
+
+    b
+     An emission rate must be entered for every pollutant modeled.
+     Enter emission rate of zero for secondary pollutants that are
+     modeled, but not emitted.  Units are specified by IVLU 
+     (e.g. 1 for g/s).
+
+---------------
+Subgroup (16c)
+---------------
+                                                 a
+          VOLUME SOURCE: VARIABLE EMISSIONS DATA
+          ----------------------------------------
+
+     Use this subgroup to describe temporal variations in the emission
+     rates given in 16b.  Factors entered multiply the rates in 16b.
+     Skip sources here that have constant emissions.  For more elaborate
+     variation in source parameters, use VOLEMARB.DAT and NVL2 > 0.
+
+     IVARY determines the type of variation, and is source-specific:
+     (IVARY)                                Default: 0
+           0 =       Constant
+           1 =       Diurnal cycle (24 scaling factors: hours 1-24)
+           2 =       Monthly cycle (12 scaling factors: months 1-12)
+           3 =       Hour & Season (4 groups of 24 hourly scaling factors,
+                                    where first group is DEC-JAN-FEB)
+           4 =       Speed & Stab. (6 groups of 6 scaling factors, where
+                                    first group is Stability Class A,
+                                    and the speed classes have upper
+                                    bounds (m/s) defined in Group 12
+           5 =       Temperature   (12 scaling factors, where temperature
+                                    classes have upper bounds (C) of:
+                                    0, 5, 10, 15, 20, 25, 30, 35, 40,
+                                    45, 50, 50+)
+
+
+
+--------
+    a
+     Data for each species are treated as a separate input subgroup
+     and therefore must end with an input group terminator.
+
+
+-------------------------------------------------------------------------------
+
+INPUT GROUPS: 17a & 17b -- Non-gridded (discrete) receptor information
+-----------------------
+
+---------------
+Subgroup (17a)
+---------------
+
+     Number of non-gridded receptors (NREC)  No default  !  NREC =  0   !
+
+!END!
+
+---------------
+Subgroup (17b)
+---------------
+                                               a
+           NON-GRIDDED (DISCRETE) RECEPTOR DATA
+           ------------------------------------
+
+                   X            Y          Ground        Height   b
+Receptor       Coordinate   Coordinate    Elevation   Above Ground
+  No.             (km)         (km)          (m)           (m)
+--------       ----------   ----------    ---------   ------------
+
+-------------
+    a
+     Data for each receptor are treated as a separate input subgroup
+     and therefore must end with an input group terminator.
+
+    b
+     Receptor height above ground is optional.  If no value is entered,
+     the receptor is placed on the ground.
