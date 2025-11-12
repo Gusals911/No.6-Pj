@@ -55,8 +55,12 @@ mvn spring-boot:run
 
 ## 📚 주요 문서
 
-- **[DATABASE_SETUP.md](TSEI_modeling/DATABASE_SETUP.md)** - 데이터베이스 설정 가이드
+### 시작 가이드
+- **[QUICK_START_WITH_LOCAL_DATA.md](TSEI_modeling/QUICK_START_WITH_LOCAL_DATA.md)** - 로컬 모델링 데이터 처리 빠른 시작 가이드
 - **[MODELING_OUTPUT_WORKFLOW.md](TSEI_modeling/MODELING_OUTPUT_WORKFLOW.md)** - 모델링 출력 처리 워크플로우
+
+### 설정 및 배포
+- **[DATABASE_SETUP.md](TSEI_modeling/DATABASE_SETUP.md)** - 데이터베이스 설정 가이드
 - **[DEPLOYMENT_AND_ACCESS.md](TSEI_modeling/DEPLOYMENT_AND_ACCESS.md)** - 배포 및 팀 접근 설정
 - **[QUICK_NETWORK_SETUP.md](TSEI_modeling/QUICK_NETWORK_SETUP.md)** - 빠른 네트워크 접근 설정
 - **[WHY_LOADING_EXPLAINED.md](TSEI_modeling/WHY_LOADING_EXPLAINED.md)** - 로딩 상태 설명
