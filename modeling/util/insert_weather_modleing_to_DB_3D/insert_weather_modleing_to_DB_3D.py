@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from datetime import datetime
 import requests
 import pymysql
@@ -24,7 +25,7 @@ if __name__ == "__main__":
     MYSQL_WEATHER = config["DATABASE_WEATHER_TABLE"]
     DATA_DIR = config["DATA_DIR"]
 
-    engine = create_engine("mysql+pymysql://"+MYSQL_USER+':'+MYSQL_PASSWORD+'@'+MYSQL_HOSTNAME+':'+MYSQL_PORT+'/'+MYSQL_DATABASE+"?charset=utf8", encoding='utf8')
+    engine = create_engine("mysql+pymysql://"+MYSQL_USER+':'+MYSQL_PASSWORD+'@'+MYSQL_HOSTNAME+':'+MYSQL_PORT+'/'+MYSQL_DATABASE+"?charset=utf8mb4")
     conn = engine.connect()
 
 
@@ -43,18 +44,44 @@ if __name__ == "__main__":
         exit()
 
     print(DATA_DIR+'/'+dataDirectory+'/'+dataFile)
-    modelData = pd.read_csv(DATA_DIR+'/'+dataDirectory+'/'+dataFile)
+    modelData = pd.read_csv(DATA_DIR+'/'+dataDirectory+'/'+dataFile, skipinitialspace=True)
     
-    modelData = modelData[modelData['conc1'] > 0] 
+    # Clean column names (remove extra spaces)
+    modelData.columns = modelData.columns.str.strip()
+    
+    # Check if columns are already named correctly
+    if 'lon' in modelData.columns and 'lat' in modelData.columns:
+        # Columns are already named correctly, just ensure order and remove any extra columns
+        required_cols = ['lon', 'lat', 'conc1', 'conc2', 'conc3', 'conc4', 'conc5', 'conc6', 'conc7', 'conc8', 'conc9', 'conc10']
+        # Keep only required columns and ensure correct order
+        existing_cols = [col for col in required_cols if col in modelData.columns]
+        modelData = modelData[existing_cols]
+        # Reorder to match required order
+        modelData = modelData[required_cols]
+    else:
+        # CSV doesn't have headers or has different structure - assign column names by position
+        modelData = modelData.reset_index(drop=True)
+        if len(modelData.columns) == 12:
+            modelData.columns = ['lon','lat','conc1','conc2','conc3','conc4','conc5','conc6','conc7','conc8','conc9','conc10']
+        elif len(modelData.columns) == 13:
+            modelData.columns = ['lon','lat','conc1','conc2','conc3','conc4','conc5','conc6','conc7','conc8','conc9','conc10', 'null']
+            del modelData['null']
+        else:
+            raise ValueError(f"Unexpected number of columns ({len(modelData.columns)}). Expected 12 or 13.")
+    
+    modelData = modelData[modelData['conc1'] > 0]
     reg_date = [[regDatetime] for i in range(len(modelData))]
-    modelData = modelData.reset_index()
-    modelData.columns = ['lon','lat','conc1','conc2','conc3','conc4','conc5','conc6','conc7','conc8','conc9','conc10', 'null']
-    del modelData['null']
-    print(modelData)
+    modelData = modelData.reset_index(drop=True)
+    print(f"Processing {len(modelData)} rows with conc1 > 0")
+    print(modelData[['lon', 'lat', 'conc1']].head())
 
     modelData = modelData.assign(reg_date = reg_date)
     modelData = modelData.assign(e_idx = 0)
     
+    # Reorder columns to match database table structure: e_idx, lat, lon, conc1-10, reg_date
+    # Database expects: e_idx, lat, lon, conc1, conc2, ..., conc10, reg_date
+    column_order = ['e_idx', 'lat', 'lon', 'conc1', 'conc2', 'conc3', 'conc4', 'conc5', 'conc6', 'conc7', 'conc8', 'conc9', 'conc10', 'reg_date']
+    modelData = modelData[column_order]
     
     url = "http://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&APPID=%s"%(
         config["WEATHER_LATITUDE"], config["WEATHER_LONGITUDE"], config["WEATHER_API_KEY"])     # weather api url / import data(LAT/LNG, API Key) from config.json file
@@ -86,27 +113,67 @@ if __name__ == "__main__":
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f, indent=0)
     
-    lastestFile = dataFile[13:17]
+    # Extract date from filename (e.g., conc.202511072324.csv -> 202511072324)
+    date_match = re.search(r'(\d{12})', dataFile)
+    if date_match:
+        date_str = date_match.group(1)
+    else:
+        # Fallback: try to extract from filename position
+        if len(dataFile) > 17:
+            date_str = dataFile[5:17]  # Skip "conc." and take 12 digits
+        else:
+            date_str = dataFile.replace('conc.', '').replace('.csv', '')
     
     value = config["VALUE"]
     v = 1
     while (v <= value):
-            endfile = str(lastestFile) + "ll" + str(v) + ".csv"
-            fileList = os.listdir(DATA_DIR+'/'+dataDirectory+'/eachdata')
+            # Pattern: conc.YYYYMMDDHHMMll{N}.csv
+            endfile = "ll" + str(v) + ".csv"
+            eachdata_dir = DATA_DIR+'/'+dataDirectory+'/eachdata'
+            if not os.path.exists(eachdata_dir):
+                print(f"Warning: Directory {eachdata_dir} does not exist. Skipping individual files.")
+                break
+            fileList = os.listdir(eachdata_dir)
             fileList.sort()
-            print(endfile)
-            for dataFile in fileList:
-                if dataFile.endswith(endfile, 13):
+            print(f"Looking for file ending with: {endfile}")
+            dataFile_found = None
+            for f in fileList:
+                if f.endswith(endfile) and date_str in f:
+                    dataFile_found = f
                     break
-            modelData = pd.read_csv(DATA_DIR+'/'+dataDirectory+'/eachdata/'+dataFile)
-            print(dataFile + "  Insert!")
+            if dataFile_found is None:
+                print(f"Warning: File ending with {endfile} not found. Skipping.")
+                v += 1
+                continue
+            modelData = pd.read_csv(eachdata_dir + '/' + dataFile_found, skipinitialspace=True)
+            print(dataFile_found + "  Insert!")
+            
+            # Clean column names
+            modelData.columns = modelData.columns.str.strip()
+            
+            # Check if columns are already named correctly
+            if 'lon' in modelData.columns and 'lat' in modelData.columns:
+                required_cols = ['lon', 'lat', 'conc1', 'conc2', 'conc3', 'conc4', 'conc5', 'conc6', 'conc7', 'conc8', 'conc9', 'conc10']
+                existing_cols = [col for col in required_cols if col in modelData.columns]
+                modelData = modelData[existing_cols]
+                modelData = modelData[required_cols]
+            else:
+                modelData = modelData.reset_index(drop=True)
+                if len(modelData.columns) == 12:
+                    modelData.columns = ['lon','lat','conc1','conc2','conc3','conc4','conc5','conc6','conc7','conc8','conc9','conc10']
+                elif len(modelData.columns) == 13:
+                    modelData.columns = ['lon','lat','conc1','conc2','conc3','conc4','conc5','conc6','conc7','conc8','conc9','conc10', 'null']
+                    del modelData['null']
+            
             modelData = modelData[modelData['conc1'] > 0]
             reg_date = [[regDatetime] for i in range(len(modelData))]
-            modelData = modelData.reset_index()
-            modelData.columns = ['lon','lat','conc1','conc2','conc3','conc4','conc5','conc6','conc7','conc8','conc9','conc10', 'null']
-            del modelData['null']
+            modelData = modelData.reset_index(drop=True)
             modelData = modelData.assign(reg_date = reg_date)
             modelData = modelData.assign(e_idx = v)
+            
+            # Reorder columns to match database table structure: e_idx, lat, lon, conc1-10, reg_date
+            column_order = ['e_idx', 'lat', 'lon', 'conc1', 'conc2', 'conc3', 'conc4', 'conc5', 'conc6', 'conc7', 'conc8', 'conc9', 'conc10', 'reg_date']
+            modelData = modelData[column_order]
             
             modelData.to_sql(name=MYSQL_MODEL, con=engine, if_exists='append', index=False)
 
