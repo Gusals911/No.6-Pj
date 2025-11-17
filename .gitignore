@@ -103,3 +103,32 @@ yarn-error.log
 .env.local
 .env.*.local
 
+
+# 추가해야 할 DB 설정파일
+# .gitignore
+
+### 1. Java / Maven 빌드 결과물 (자동 생성 파일) ###
+# (용량이 크고, 개인 PC마다 달라 충돌의 원인이 됨)
+/TSEI_modeling/target/
+*.log
+
+### 2. IDE 및 OS 설정 파일 ###
+# (개인 개발 환경 설정이므로 제외)
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# ----------------------------------------------------
+# [핵심] 모든 민감한 설정 "원본" 파일 제외
+# (이 파일들은 GitHub에 올리지 않고, *.example 템플릿만 올립니다)
+# ----------------------------------------------------
+
+# Spring 설정 원본 파일 (템플릿: application.properties.example)
+TSEI_modeling/src/main/resources/application.properties
+
+# mdl(모델) 설정 원본 파일 1 (템플릿: config.json.example)
+mdl/util/real-time_weather_emissions_transfer_3D/config.json
+
+# mdl(모델) 설정 원본 파일 2 (템플릿: config.json.example)
+mdl/util/insert_weather_modeling_to_DB_3D/config.json
