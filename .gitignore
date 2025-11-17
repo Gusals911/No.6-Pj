@@ -1,5 +1,7 @@
-# Java/Maven
-target/
+# .gitignore (최종 수정본)
+
+### 1. Java / Maven ###
+/TSEI_modeling/target/
 *.class
 *.jar
 *.war
@@ -9,41 +11,7 @@ target/
 mvnw
 mvnw.cmd
 
-# IDE
-.idea/
-*.iml
-*.iws
-*.ipr
-.vscode/
-.settings/
-.classpath
-.project
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-*.tmp
-
-# Logs
-*.log
-logs/
-app.log
-app_startup.log
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# Application specific
-TSEI_modeling/app.log
-TSEI_modeling/app_startup.log
-TSEI_modeling/target/
-
-# Python
+### 2. Python ###
 __pycache__/
 *.py[cod]
 *$py.class
@@ -57,40 +25,34 @@ ENV/
 dist/
 build/
 
-# Modeling output data (large files - team should add these separately)
-modeling/out/*
-!modeling/out/.gitkeep
-modeling/run/*.DAT
-modeling/run/*.LST
-modeling/run/*.CON
-modeling/inp/restart/*.DAT
-modeling/inp/surf/pr/*
-modeling/inp/up/*.DAT
+### 3. IDE / OS ###
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.classpath
+.project
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
 
-# Large binary files (exceed GitHub 100MB limit)
-modeling/bin/*.exe
-modeling/bin/wgrib2
-modeling/util/skor.dem
-modeling.zip
-modeling_DB.zip
-
-# Configuration files with sensitive data (keep examples, ignore actual configs)
-modeling/util/*/config.json
-!modeling/util/*/config*.example.json
-!modeling/util/*/config.local.json.example
-
-# Node modules (if any)
-node_modules/
-npm-debug.log
-yarn-error.log
-
-# Temporary files
+### 4. 로그 및 임시 파일 ###
+*.log
+logs/
+app.log
+app_startup.log
+TSEI_modeling/app.log
+TSEI_modeling/app_startup.log
 *.tmp
 *.temp
 *.bak
 *.backup
 
-# Compressed files (usually too large)
+### 5. 압축 파일 (모델 zip은 예외처리) ###
 *.zip
 *.tar
 *.tar.gz
@@ -98,37 +60,29 @@ yarn-error.log
 !modeling_DB.zip
 !modeling.zip
 
-# Environment variables
+### 6. 민감한 설정 파일 (가장 중요) ###
+# Spring 설정 원본 (템플릿: *.example)
+TSEI_modeling/src/main/resources/application.properties
+
+# Mdl 설정 원본 (템플릿: *.example)
+mdl/util/*/config.json
+!mdl/util/*/config*.example.json
+!mdl/util/*/config.local.json.example
+
+### 7. 모델 결과물 및 바이너리 (mdl 경로 수정) ###
+mdl/out/*
+!mdl/out/.gitkeep
+mdl/run/*.DAT
+mdl/run/*.LST
+mdl/run/*.CON
+mdl/inp/restart/*.DAT
+mdl/inp/surf/pr/*
+mdl/inp/up/*.DAT
+mdl/bin/*.exe
+mdl/bin/wgrib2
+mdl/util/skor.dem
+
+### 8. 환경 변수 ###
 .env
 .env.local
 .env.*.local
-
-
-# 추가해야 할 DB 설정파일
-# .gitignore
-
-### 1. Java / Maven 빌드 결과물 (자동 생성 파일) ###
-# (용량이 크고, 개인 PC마다 달라 충돌의 원인이 됨)
-/TSEI_modeling/target/
-*.log
-
-### 2. IDE 및 OS 설정 파일 ###
-# (개인 개발 환경 설정이므로 제외)
-.idea/
-.vscode/
-*.iml
-.DS_Store
-
-# ----------------------------------------------------
-# [핵심] 모든 민감한 설정 "원본" 파일 제외
-# (이 파일들은 GitHub에 올리지 않고, *.example 템플릿만 올립니다)
-# ----------------------------------------------------
-
-# Spring 설정 원본 파일 (템플릿: application.properties.example)
-TSEI_modeling/src/main/resources/application.properties
-
-# mdl(모델) 설정 원본 파일 1 (템플릿: config.json.example)
-mdl/util/real-time_weather_emissions_transfer_3D/config.json
-
-# mdl(모델) 설정 원본 파일 2 (템플릿: config.json.example)
-mdl/util/insert_weather_modeling_to_DB_3D/config.json
