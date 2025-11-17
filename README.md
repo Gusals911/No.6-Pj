@@ -131,6 +131,42 @@ mvn spring-boot:run
 
 ## 📞 문의
 
+
+
+# No.6-Pj: 악취 예보 시스템
+
+( ... 프로젝트에 대한 간략한 소개 ... )
+
+---
+
+## 🚀 1. 개발 환경 설정 (필독)
+
+이 프로젝트는 민감한 DB 접속 정보(비밀번호 등)를 GitHub에 직접 올리지 않습니다.
+
+`.gitignore` 파일에 의해 실제 설정 파일(`application.properties`, `config.json`)은 **무시**되도록 설정되어 있습니다.
+
+프로젝트를 `clone` 받은 후, 서버와 모델을 실행하기 위해 **반드시** 아래 3개의 설정 파일을 수동으로 생성해야 합니다.
+
+### ## A. Spring 서버 설정 (`TSEI_modeling`)
+
+1.  **템플릿 파일:** `TSEI_modeling/src/main/resources/application.properties.example`
+2.  **생성할 파일:** 위 템플릿 파일을 **복사**하여 `TSEI_modeling/src/main/resources/application.properties` 파일을 생성합니다.
+3.  **수정:** `application.properties` 파일을 열어, `[DB호스트]`, `[ID]`, `[비밀번호]` 부분을 **본인의 로컬 DB 환경**에 맞게 수정합니다.
+
+### ## B. 모델 스크립트 설정 (`mdl` - 실시간)
+
+1.  **템플릿 파일:** `mdl/util/real-time_weather_emissions_transfer_3D/config.json.example`
+2.  **생성할 파일:** 위 템플릿 파일을 **복사**하여 `config.json` 파일을 같은 폴더에 생성합니다.
+3.  **수정:** `config.json` 파일을 열어 본인의 DB 정보를 입력합니다.
+
+### ## C. 모델 스크립트 설정 (`mdl` - DB 저장)
+
+1.  **템플릿 파일:** `mdl/util/insert_weather_modeling_to_DB_3D/config.json.example`
+2.  **생성할 파일:** 위 템플릿 파일을 **복사**하여 `config.json` 파일을 같은 폴더에 생성합니다.
+3.  **수정:** `config.json` 파일을 열어 본인의 DB 정보를 입력합니다.
+
+> **[참고]**
+> 이렇게 생성한 `application.properties`와 `config.json` 파일들은 `.gitignore`에 의해 안전하게 보호되며, GitHub에 업로드되지 않습니다.
 프로젝트 관련 문의사항은 팀 리더에게 연락하세요.
 
 ---
