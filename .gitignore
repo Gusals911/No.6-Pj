@@ -6,7 +6,6 @@
 *.jar
 *.war
 *.ear
-*.log
 .mvn/
 mvnw
 mvnw.cmd
@@ -81,6 +80,10 @@ mdl/inp/up/*.DAT
 mdl/bin/*.exe
 mdl/bin/wgrib2
 mdl/util/skor.dem
+
+mdl/run/CALMET.DAT
+mdl/run/CALPUFF.CON
+mdl/inp/gfs/
 
 ### 8. 환경 변수 ###
 .env
